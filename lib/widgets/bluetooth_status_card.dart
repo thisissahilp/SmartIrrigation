@@ -16,6 +16,7 @@ class BluetoothStatusCard extends StatelessWidget {
         final isConnected = service.connectionState == BtcConnectionState.connected;
         final isConnecting = service.connectionState == BtcConnectionState.connecting;
         final deviceName = service.connectedDeviceName ?? "None";
+        final hc05 = service.findPairedHC05();
 
         return Card(
           elevation: 4,
@@ -24,35 +25,42 @@ class BluetoothStatusCard extends StatelessWidget {
           ),
           color: Colors.white,
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
-                      children: [
-                        Icon(
-                          Icons.bluetooth,
-                          color: Color(0xFF2E7D32),
-                          size: 28,
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          'Bluetooth Connection',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                    Expanded(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.bluetooth,
+                            color: Color(0xFF2E7D32),
+                            size: 26,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          const Flexible(
+                            child: Text(
+                              'Bluetooth Connection',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     _buildStatusPill(service.connectionState),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 if (isConnected) ...[
                   Row(
                     children: [
@@ -61,71 +69,95 @@ class BluetoothStatusCard extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.grey,
+                          fontSize: 14,
                         ),
                       ),
-                      Text(
-                        deviceName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.black87,
+                      Expanded(
+                        child: Text(
+                          deviceName,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ] else ...[
-                  const Text(
-                    'Ensure HC-05 module is powered and paired on your Android device before connecting.',
-                    style: TextStyle(
+                  Text(
+                    hc05 != null
+                        ? 'Paired module found: ${getDeviceTitle(hc05)} (${hc05.address}). Tap Connect below.'
+                        : 'Ensure HC-05 module is powered and paired on your Android device before connecting.',
+                    style: const TextStyle(
                       fontSize: 13,
                       color: Colors.grey,
                     ),
                   ),
                 ],
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isConnected ? Colors.red[800] : const Color(0xFF2E7D32),
-                      foregroundColor: Colors.white,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: isConnecting
-                        ? null
-                        : () {
-                            if (isConnected) {
-                              service.disconnect();
-                            } else {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => const BluetoothDevicesScreen(),
-                                ),
-                              );
-                            }
-                          },
-                    child: isConnecting
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : Text(
-                            isConnected ? 'DISCONNECT' : 'CONNECT DEVICE',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.1,
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isConnected ? Colors.red[800] : const Color(0xFF2E7D32),
+                            foregroundColor: Colors.white,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                  ),
+                          onPressed: isConnecting
+                              ? null
+                              : () {
+                                  if (isConnected) {
+                                    service.disconnect();
+                                  } else {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => const BluetoothDevicesScreen(),
+                                      ),
+                                    );
+                                  }
+                                },
+                          child: isConnecting
+                              ? const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'CONNECTING...',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Text(
+                                  isConnected ? 'DISCONNECT' : 'CONNECT DEVICE',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.1,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -147,20 +179,20 @@ class BluetoothStatusCard extends StatelessWidget {
         textColor = const Color(0xFF2E7D32);
         break;
       case BtcConnectionState.connecting:
-        text = '🟡 Connecting';
+        text = '🟡 Connecting...';
         color = const Color(0xFFFFFDE7);
         textColor = const Color(0xFFFBC02D);
         break;
       case BtcConnectionState.disconnected:
       default:
-        text = '🔴 Not Connected';
+        text = '🔴 Disconnected';
         color = const Color(0xFFFFEBEE);
         textColor = const Color(0xFFC62828);
         break;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20),

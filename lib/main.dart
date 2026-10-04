@@ -8,6 +8,10 @@ void main() async {
   // Initialize the Bluetooth Service singleton
   final bluetoothService = BluetoothService();
   await bluetoothService.init();
+  final hasPerm = await bluetoothService.requestPermissions();
+  if (hasPerm) {
+    await bluetoothService.loadPairedDevices();
+  }
 
   runApp(const SmartFarmApp());
 }

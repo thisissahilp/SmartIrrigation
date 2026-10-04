@@ -23,7 +23,6 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
     final hasPermission = await _bluetoothService.requestPermissions();
     if (hasPermission) {
       await _bluetoothService.loadPairedDevices();
-      _bluetoothService.startDiscovery();
     }
   }
 
@@ -33,41 +32,80 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
     super.dispose();
   }
 
+  Future<void> _connectToDevice(BtcDevice device) async {
+    final title = getDeviceTitle(device);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Connecting to $title (${device.address})...'),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    final success = await _bluetoothService.connect(device);
+
+    if (mounted) {
+      if (success) {
+        Navigator.of(context).pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_bluetoothService.lastError ?? 'Connection failed.'),
+            backgroundColor: const Color(0xFFC62828),
+            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F4),
       appBar: AppBar(
         title: const Text(
-          'Pair / Connect HC-05',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          'Discover Bluetooth Devices',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
         ),
         backgroundColor: const Color(0xFF2E7D32),
-        elevation: 0,
+        elevation: 2,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           ListenableBuilder(
             listenable: _bluetoothService,
             builder: (context, _) {
               if (_bluetoothService.isScanning) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Scanning...',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.0),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 );
               }
               return IconButton(
                 icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  _bluetoothService.startDiscovery();
+                tooltip: 'Refresh paired devices',
+                onPressed: () async {
+                  final hasPermission = await _bluetoothService.requestPermissions();
+                  if (hasPermission) {
+                    await _bluetoothService.refreshDevices();
+                  }
                 },
               );
             },
@@ -84,15 +122,16 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.security, size: 64, color: Colors.red),
+                    const Icon(Icons.security, size: 64, color: Color(0xFFC62828)),
                     const SizedBox(height: 16),
                     const Text(
-                      'Bluetooth Permissions Required',
+                      'Bluetooth permission is required.',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Please grant Bluetooth permissions to allow searching and connecting to HC-05.',
+                      'Bluetooth permission is required to discover and connect to your HC-05 module.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey),
                     ),
@@ -106,11 +145,10 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
                         _bluetoothService.requestPermissions().then((granted) {
                           if (granted) {
                             _bluetoothService.loadPairedDevices();
-                            _bluetoothService.startDiscovery();
                           }
                         });
                       },
-                      child: const Text('Grant Permissions'),
+                      child: const Text('Grant Permission'),
                     ),
                   ],
                 ),
@@ -128,12 +166,13 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
                     Icon(Icons.bluetooth_disabled, size: 64, color: Colors.grey[400]),
                     const SizedBox(height: 16),
                     const Text(
-                      'Bluetooth is Disabled',
+                      'Please turn on Bluetooth.',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Please turn on Bluetooth in your Android settings to find HC-05.',
+                      'Please enable Bluetooth in your Android Settings to connect to HC-05.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey),
                     ),
@@ -146,23 +185,41 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
           final paired = _bluetoothService.pairedDevices;
           final discovered = _bluetoothService.discoveredDevices;
 
-          if (paired.isEmpty && discovered.isEmpty && !_bluetoothService.isScanning) {
-            return const Center(
-              child: Text('No Bluetooth devices found. Please try refreshing.'),
-            );
-          }
-
           return ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
+              // Notice banner
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.bluetooth_connected, color: Colors.green[800], size: 22),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Select your HC-05 module below to establish a persistent BLE GATT connection.',
+                        style: TextStyle(color: Colors.green[900], fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               if (paired.isNotEmpty) ...[
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
                   child: Text(
-                    'Paired Devices',
+                    'PAIRED BLUETOOTH DEVICES',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
                       color: Color(0xFF2E7D32),
                     ),
                   ),
@@ -179,24 +236,37 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
                     separatorBuilder: (context, index) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final device = paired[index];
-                      final isHC05 = device.displayName.toUpperCase().contains('HC-05') ||
-                          device.displayName.toUpperCase().contains('HC-06');
-                      return _buildDeviceTile(device, isHC05);
+                      return _buildDeviceTile(device, isPaired: true);
                     },
                   ),
                 ),
                 const SizedBox(height: 24),
               ],
               if (discovered.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                  child: Text(
-                    'Other Available Devices',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2E7D32),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                  child: Row(
+                    children: [
+                      const Text(
+                        'NEARBY DEVICES',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                          color: Color(0xFF2E7D32),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (_bluetoothService.isScanning)
+                        const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32)),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 Card(
@@ -211,9 +281,7 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
                     separatorBuilder: (context, index) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final device = discovered[index];
-                      final isHC05 = device.displayName.toUpperCase().contains('HC-05') ||
-                          device.displayName.toUpperCase().contains('HC-06');
-                      return _buildDeviceTile(device, isHC05);
+                      return _buildDeviceTile(device, isPaired: false);
                     },
                   ),
                 ),
@@ -225,8 +293,17 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
     );
   }
 
-  Widget _buildDeviceTile(BtcDevice device, bool isHC05) {
+  Widget _buildDeviceTile(BtcDevice device, {required bool isPaired}) {
+    final isConnecting = _bluetoothService.connectionState == BtcConnectionState.connecting;
+    final title = getDeviceTitle(device);
+    final titleUpper = title.toUpperCase();
+    final isHC05 = titleUpper.contains('HC-05') ||
+        titleUpper.contains('HC-06') ||
+        titleUpper.contains('HC05') ||
+        titleUpper.contains('HC06');
+
     return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: CircleAvatar(
         backgroundColor: isHC05 ? const Color(0xFFE8F5E9) : Colors.grey[200],
         child: Icon(
@@ -235,46 +312,50 @@ class _BluetoothDevicesScreenState extends State<BluetoothDevicesScreen> {
         ),
       ),
       title: Text(
-        device.displayName.isNotEmpty ? device.displayName : 'Unknown Device',
+        title,
         style: TextStyle(
-          fontWeight: isHC05 ? FontWeight.bold : FontWeight.normal,
+          fontWeight: isHC05 ? FontWeight.bold : FontWeight.w600,
+          fontSize: 16,
+          color: Colors.black87,
         ),
       ),
-      subtitle: Text(device.address),
-      trailing: isHC05
-          ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8F5E9),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFA5D6A7)),
-              ),
-              child: const Text(
-                'HC-05 Module',
-                style: TextStyle(
-                  color: Color(0xFF2E7D32),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          : null,
-      onTap: () async {
-        _bluetoothService.stopDiscovery();
-        
-        // Show connecting dialog or just connect and go back
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Connecting to ${device.displayName}...'),
-            duration: const Duration(seconds: 2),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isPaired ? 'Bluetooth LE • Paired' : 'Bluetooth LE • Nearby',
+            style: TextStyle(
+              fontSize: 12,
+              color: isPaired ? const Color(0xFF2E7D32) : Colors.orange[800],
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        );
-        
-        await _bluetoothService.connect(device);
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      },
+          Text(
+            device.address,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.grey,
+              fontFamily: 'monospace',
+            ),
+          ),
+        ],
+      ),
+      trailing: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isHC05 ? const Color(0xFF2E7D32) : Colors.grey[700],
+          foregroundColor: Colors.white,
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        ),
+        onPressed: isConnecting ? null : () => _connectToDevice(device),
+        child: Text(
+          isPaired ? 'CONNECT' : 'PAIR & CONNECT',
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+        ),
+      ),
     );
   }
 }

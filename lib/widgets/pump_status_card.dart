@@ -18,7 +18,7 @@ class _PumpStatusCardState extends State<PumpStatusCard> with SingleTickerProvid
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
-    )..repeat();
+    );
   }
 
   @override
@@ -34,11 +34,11 @@ class _PumpStatusCardState extends State<PumpStatusCard> with SingleTickerProvid
     return ListenableBuilder(
       listenable: service,
       builder: (context, _) {
-        final isOn = service.isPumpOn;
         final isConnected = service.connectionState == BtcConnectionState.connected;
+        final isOn = isConnected && service.isPumpOn;
 
-        // If the pump is on, play animation, otherwise stop it
-        if (isOn && isConnected) {
+        // If pump is ON and connected, play animation, otherwise stop it
+        if (isOn) {
           if (!_animationController.isAnimating) {
             _animationController.repeat();
           }
@@ -61,7 +61,7 @@ class _PumpStatusCardState extends State<PumpStatusCard> with SingleTickerProvid
                 const Text(
                   'IRRIGATION PUMP',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: Colors.grey,
                     letterSpacing: 1.2,
@@ -79,13 +79,13 @@ class _PumpStatusCardState extends State<PumpStatusCard> with SingleTickerProvid
                         height: 140,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: (isOn && isConnected)
-                              ? Colors.lightBlue.withOpacity(0.15)
-                              : Colors.grey.withOpacity(0.1),
-                          boxShadow: (isOn && isConnected)
+                          color: isOn
+                              ? Colors.lightBlue.withValues(alpha: 0.15)
+                              : Colors.grey.withValues(alpha: 0.1),
+                          boxShadow: isOn
                               ? [
                                   BoxShadow(
-                                    color: Colors.lightBlue.withOpacity(0.3),
+                                    color: Colors.lightBlue.withValues(alpha: 0.3),
                                     blurRadius: 20,
                                     spreadRadius: 5,
                                   )
@@ -93,8 +93,8 @@ class _PumpStatusCardState extends State<PumpStatusCard> with SingleTickerProvid
                               : [],
                         ),
                       ),
-                      // Animated Flowing Water Drops (Only when ON and connected)
-                      if (isOn && isConnected)
+                      // Animated Flowing Water Drops
+                      if (isOn)
                         AnimatedBuilder(
                           animation: _animationController,
                           builder: (context, child) {
@@ -130,27 +130,31 @@ class _PumpStatusCardState extends State<PumpStatusCard> with SingleTickerProvid
                       Icon(
                         Icons.local_activity_outlined,
                         size: 40,
-                        color: (isOn && isConnected) ? Colors.lightBlue[800] : Colors.grey[600],
+                        color: isOn ? Colors.lightBlue[800] : Colors.grey[600],
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  (isOn && isConnected) ? 'PUMP ON' : 'PUMP OFF',
+                  isOn ? '🟢 PUMP ON' : '⚪ PUMP OFF',
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 26,
                     fontWeight: FontWeight.w900,
-                    color: (isOn && isConnected) ? Colors.lightBlue[800] : Colors.grey[700],
+                    color: isOn ? Colors.lightBlue[800] : Colors.grey[700],
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  (isOn && isConnected) ? 'Water is currently flowing' : 'Pump is stopped',
+                  !isConnected
+                      ? 'Bluetooth disconnected — pump status unavailable'
+                      : (isOn ? 'Water is currently flowing' : 'Pump is stopped'),
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
+                    fontSize: 13,
+                    color: !isConnected ? Colors.red[700] : Colors.grey[600],
                     fontStyle: FontStyle.italic,
+                    fontWeight: !isConnected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               ],
