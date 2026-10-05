@@ -1,0 +1,414 @@
+{
+  "@@locale": "en",
+  "appTitle": "SMART FARM",
+  "appSubtitle": "Wireless Irrigation Controller",
+  "dashboard": "Dashboard",
+  "schedules": "Schedules",
+  "history": "History",
+  "settings": "Settings",
+  "bluetoothConnection": "Bluetooth Connection",
+  "connected": "Connected",
+  "connecting": "Connecting...",
+  "disconnected": "Disconnected",
+  "pairedModuleFound": "Paired module found: {deviceName} ({macAddress}). Tap Connect below.",
+  "@pairedModuleFound": {
+    "placeholders": {
+      "deviceName": {
+        "type": "String"
+      },
+      "macAddress": {
+        "type": "String"
+      }
+    }
+  },
+  "noPairedModuleFound": "Ensure HC-05 module is powered and paired on your Android device before connecting.",
+  "connectDevice": "CONNECT DEVICE",
+  "disconnectDevice": "DISCONNECT",
+  "connectingButton": "CONNECTING...",
+  "systemAndConnectionStatus": "SYSTEM & CONNECTION STATUS",
+  "bluetooth": "Bluetooth",
+  "controllerHc05": "Controller (HC-05)",
+  "available": "Available",
+  "unavailable": "Unavailable",
+  "gattProtocol": "GATT Protocol",
+  "ready": "Ready (FFE0/FFE1)",
+  "notReady": "Not Ready",
+  "watchdogSafety": "Watchdog Safety",
+  "activePulse": "Active (500ms pulse)",
+  "inactive": "Inactive",
+  "pumpCommandState": "Pump command state:",
+  "unknownDisconnected": "UNKNOWN (Disconnected)",
+  "onCommanded": "ON (Commanded)",
+  "off": "OFF",
+  "lastHeartbeat": "Last Heartbeat (\"H\"):",
+  "secAgo": "{count} sec ago",
+  "@secAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "na": "N/A",
+  "controllerDisconnectedWarning": "Bluetooth connection lost while pump was ON. Arduino safety watchdog will turn pump OFF.",
+  "controllerConnectedWarning": "Controller connected via Bluetooth. Stay within reliable Bluetooth range.",
+  "hardwareDisclaimer": "* Pump command state shown. Physical motor confirmation requires additional hardware feedback sensors.",
+  "irrigationPump": "IRRIGATION PUMP",
+  "pumpIsRunning": "PUMP IS RUNNING",
+  "pumpIsOff": "PUMP IS OFF",
+  "turnPumpOn": "TURN PUMP ON",
+  "turnPumpOff": "TURN PUMP OFF",
+  "emergencyStop": "🛑 EMERGENCY STOP",
+  "todaysSummary": "TODAY'S SUMMARY",
+  "todaysRecommendation": "TODAY'S RECOMMENDATION",
+  "nextIrrigation": "NEXT IRRIGATION",
+  "noIrrigationScheduled": "No additional irrigation required today.",
+  "recommendationDone": "Today's irrigation has been performed ({count} sessions).",
+  "@recommendationDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startNow": "START NOW",
+  "reasonNoIrrigationToday": "Reason: No irrigation recorded today.",
+  "quickTimer": "IRRIGATION TIMER",
+  "startTimer": "START TIMER",
+  "stopTimer": "STOP TIMER",
+  "setTimerDuration": "Set Timer Duration",
+  "farmerMode": "Farmer Mode (Simple UI)",
+  "farmerModeSubtitle": "Large buttons, big text, easy for daily farm use.",
+  "appearance": "Appearance",
+  "lightMode": "Light",
+  "language": "Language",
+  "notifications": "Notifications",
+  "diagnostics": "Watchdog & Diagnostics",
+  "completed": "Completed",
+  "missed": "Missed",
+  "interrupted": "Interrupted",
+  "cancelled": "Cancelled",
+  "manual": "Manual",
+  "timer": "Timer",
+  "scheduled": "Scheduled",
+  "totalSessions": "Total Sessions",
+  "pumpRuntime": "Pump Runtime",
+  "addSchedule": "Add Schedule",
+  "editSchedule": "Edit Schedule",
+  "deleteSchedule": "Delete Schedule",
+  "enable": "Enable",
+  "disable": "Disable",
+  "startTime": "Start Time",
+  "duration": "Duration",
+  "repeat": "Repeat",
+  "everyDay": "Every Day",
+  "selectedDays": "Selected Days",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "noSchedulesConfigured": "No schedules configured.",
+  "irrigationScheduled": "Irrigation scheduled",
+  "scheduleUpdated": "Schedule updated",
+  "scheduleDeleted": "Schedule deleted",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "sunday": "Sunday",
+  "noHistory": "No irrigation history recorded yet.",
+  "clearHistory": "Clear History",
+  "completionRate": "Completion Rate",
+  "totalRuntime": "Total Runtime",
+  "bluetoothUnavailable": "Bluetooth Unavailable",
+  "bluetoothUnavailableMsg": "Bluetooth connection is unavailable. The Arduino safety watchdog will handle pump shutdown after the 2-second timeout.",
+  "emergencyStopExecuted": "Emergency Stop Executed — Command \"0\" sent to Pump",
+  "notifIrrigationStartedTitle": "Irrigation Started",
+  "notifIrrigationStartedBody": "Pump turned ON for {mins} minutes.",
+  "@notifIrrigationStartedBody": {
+    "placeholders": {
+      "mins": {
+        "type": "int"
+      }
+    }
+  },
+  "notifIrrigationCompletedTitle": "Irrigation Completed",
+  "notifIrrigationCompletedBody": "Pump turned OFF after {mins} minutes.",
+  "@notifIrrigationCompletedBody": {
+    "placeholders": {
+      "mins": {
+        "type": "int"
+      }
+    }
+  },
+  "notifConnectionLostTitle": "Connection Lost",
+  "notifConnectionLostBody": "Bluetooth disconnected while pump was ON. Arduino safety watchdog active.",
+  "weather": "WEATHER",
+  "rainExpected": "Rain Expected",
+  "rainProbability": "Rain probability",
+  "weatherUnavailable": "Weather Unavailable",
+  "considerSkipping": "Consider Skipping Irrigation",
+  "irrigateAnyway": "IRRIGATE ANYWAY",
+  "lastUpdated": "Last updated",
+  "mins": "mins",
+  "secs": "secs",
+  "pleaseConnectFirst": "Bluetooth is not connected. Tap CONNECT DEVICE above.",
+  "irrigationAlreadyRunning": "Irrigation already running.",
+  "command1Sent": "Command '1' (PUMP ON) Sent",
+  "command0Sent": "Command '0' (PUMP OFF) Sent",
+  "failedToSend": "Failed to send command.",
+  "historyScreenTitle": "IRRIGATION HISTORY",
+  "clearHistoryTitle": "Clear History",
+  "clearHistoryConfirm": "Are you sure you want to delete all irrigation history entries?",
+  "clearAll": "Clear All",
+  "noHistoryEntries": "No irrigation history entries.",
+  "all": "All",
+  "today": "TODAY'S ANALYTICS",
+  "yesterday": "YESTERDAY",
+  "sessionDetails": "Session Details",
+  "requestedDuration": "Requested Duration:",
+  "confirmedRuntime": "Confirmed Runtime:",
+  "interruptionReason": "Reason: {reason}",
+  "@interruptionReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "close": "Close",
+  "irrigationEvents": "Irrigation Events",
+  "irrigationEventsSubtitle": "Started, completed, timer notifications",
+  "connectionEvents": "Connection Events",
+  "connectionEventsSubtitle": "Bluetooth connected/disconnected alerts",
+  "safetyEvents": "Safety & Watchdog Alerts",
+  "safetyEventsSubtitle": "Arduino watchdog shutdown alerts",
+  "diagnosticsSubtitle": "BLE GATT status, heartbeat & 5s pump test",
+  "aboutSubtitle": "Bluetooth-Based Wireless Irrigation Controller",
+  "watchdogDiagnosticsTitle": "WATCHDOG & DIAGNOSTICS",
+  "hardwareBleMetrics": "HARDWARE & BLE METRICS",
+  "diagnosticTestSuite": "DIAGNOSTIC TEST SUITE",
+  "testConnection": "TEST CONNECTION",
+  "testPump5s": "TEST PUMP FOR 5 SECONDS",
+  "testingPump": "TESTING PUMP ({count}s)",
+  "@testingPump": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "confirmPumpTestTitle": "Confirm Pump Test",
+  "confirmPumpTestContent": "This diagnostic will turn the pump ON for exactly 5 seconds and then automatically turn it OFF.\n\nProceed?",
+  "start5sTest": "Start 5s Test",
+  "pumpTestCompleted": "5-Second Pump Test Completed Successfully.",
+  "discoverBluetoothDevices": "Discover Bluetooth Devices",
+  "scanning": "Scanning...",
+  "refreshPairedDevices": "Refresh paired devices",
+  "btPermissionRequired": "Bluetooth permission is required.",
+  "btPermissionDesc": "Bluetooth permission is required to discover and connect to your HC-05 module.",
+  "grantPermission": "GRANT PERMISSION",
+  "connectingTo": "Connecting to {name} ({mac})...",
+  "@connectingTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "mac": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduledIrrigationTitle": "SCHEDULED IRRIGATION",
+  "noActiveSchedules": "No active irrigation schedules.",
+  "scheduleName": "Schedule Name",
+  "scheduleNameHint": "e.g. Morning Irrigation",
+  "enableSchedule": "Enable Schedule",
+  "saveSchedule": "Save Schedule",
+  "durationGreaterThanZero": "Duration must be greater than 0",
+  "irrigationInterrupted": "Irrigation Interrupted",
+  "connectionLostTitle": "Bluetooth connection lost.",
+  "watchdogAutoOffMsg": "The Arduino safety watchdog will automatically turn the pump OFF.",
+  "lastConfirmedRuntime": "Last confirmed runtime:",
+  "scheduledDuration": "Scheduled duration:",
+  "pumpStateLabel": "Pump state:",
+  "safetyShutdownPending": "SAFETY SHUTDOWN PENDING",
+  "understand": "Understand",
+  "customTimer": "Custom Irrigation Timer",
+  "hours": "Hours",
+  "minutes": "Minutes",
+  "seconds": "Seconds",
+  "setDuration": "Set Duration: {time}",
+  "@setDuration": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "setTimer": "SET TIMER",
+  "timerStarted": "Irrigation Timer Started ({duration})",
+  "@timerStarted": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "timerCancelled": "Timer cancelled — Pump turned OFF.",
+  "timerPresetSec": "{count} SEC",
+  "@timerPresetSec": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timerPresetMin": "{count} MIN",
+  "@timerPresetMin": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityLog": "Activity Log",
+  "eventsCount": "{count} events",
+  "@eventsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "runtimeDisclaimer": "* Confirmed/estimated runtime based on Bluetooth commands and connection timestamps, not physical sensors.",
+  "eveningIrrigation": "Evening Irrigation",
+  "morningIrrigation": "Morning Irrigation",
+  "afternoonIrrigation": "Afternoon Irrigation",
+  "masterNotifications": "Master Notifications",
+  "safetyAlerts": "Safety Alerts",
+  "safetyAlertsSubtitle": "Arduino watchdog & connection drop alerts",
+  "irrigationCompletedNotif": "Irrigation Completed",
+  "missedIrrigationNotif": "Missed Irrigation",
+  "upcomingReminders": "Upcoming Reminders",
+  "dailySummaryNotif": "Daily Summary",
+  "notifPermissionStatus": "Notification Permission: {status}",
+  "@notifPermissionStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "granted": "Granted",
+  "denied": "Denied",
+  "openNotificationSettings": "OPEN NOTIFICATION SETTINGS",
+  "viewHistory": "VIEW HISTORY",
+  "viewSchedules": "VIEW SCHEDULES",
+  "dismiss": "Dismiss",
+  "controllerReconnectedTitle": "📡 Controller Reconnected",
+  "controllerReconnectedBody": "Smart Farm controller is connected again. Pump remains OFF for safety.",
+  "missedIrrigationTitle": "⚠️ Irrigation Missed",
+  "missedIrrigationBody": "{scheduleName} could not start because the controller was unavailable.",
+  "@missedIrrigationBody": {
+    "placeholders": {
+      "scheduleName": {
+        "type": "String"
+      }
+    }
+  },
+  "upcomingIrrigationTitle": "⏰ Upcoming Irrigation",
+  "upcomingIrrigationBody": "{scheduleName} starts in 15 minutes.",
+  "@upcomingIrrigationBody": {
+    "placeholders": {
+      "scheduleName": {
+        "type": "String"
+      }
+    }
+  },
+  "dailySummaryTitle": "🌱 Daily Irrigation Summary",
+  "dailySummaryBody": "{count} sessions completed today. Total pump runtime: {runtime}.",
+  "@dailySummaryBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "runtime": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherRainTitle": "🌧️ Rain Expected",
+  "weatherRainBody": "Rain expected near scheduled irrigation time.",
+  "currentLocation": "Current Location",
+  "gettingLocalWeather": "Getting local weather...",
+  "locationUnavailable": "Location Unavailable",
+  "enableLocation": "ENABLE LOCATION",
+  "weatherDataOutdated": "Weather data may be outdated",
+  "minutesAgo": "{count}m ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "justNow": "just now",
+  "refresh": "Refresh",
+  "tryAgain": "TRY AGAIN",
+  "locationPermissionExplanation": "Weather-based irrigation recommendations use your current location to retrieve local weather information.",
+  "locationPermissionDenied": "Location permission was not granted.",
+  "locationPermissionDisabled": "Location permission is disabled for Smart Farm.",
+  "farmAnalytics": "FARM ANALYTICS",
+  "thisWeek": "THIS WEEK",
+  "clearSky": "Clear Sky",
+  "partlyCloudy": "Partly Cloudy",
+  "cloudy": "Cloudy",
+  "rainy": "Rain",
+  "heavyRain": "Heavy Rain",
+  "thunderstorm": "Thunderstorm",
+  "skipOnce": "SKIP ONCE",
+  "runNow": "RUN NOW",
+  "recentRainfallDetected": "Recent rainfall detected from local forecast.",
+  "rainExpectedWarning": "Rain probability is high ({percent}%) around your scheduled irrigation time ({time}). Consider skipping this session.",
+  "@rainExpectedWarning": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "locationServicesDisabled": "Device location services are disabled.",
+  "locationPermissionRequired": "Location permission is required for local weather.",
+  "offlineIrrigationNotice": "Your irrigation controls remain fully available offline.",
+  "openSettings": "OPEN SETTINGS",
+  "weatherOverview": "Weather Overview",
+  "morning": "Morning",
+  "afternoon": "Afternoon",
+  "evening": "Evening",
+  "night": "Night",
+  "todaysHigh": "High",
+  "todaysLow": "Low",
+  "expectedRainfall": "Expected rain",
+  "viewFullForecast": "VIEW FULL FORECAST",
+  "weatherDetailsTitle": "WEATHER DETAILS",
+  "irrigationOutlook": "Irrigation Outlook",
+  "hourlyForecast": "Hourly Forecast",
+  "confirmSkipTitle": "Skip Today's Irrigation?",
+  "confirmSkipMessage": "Skip {name} ({time}) for today? Future occurrences will remain active.",
+  "scheduleSkippedToday": "Irrigation skipped for today.",
+  "rainExpectedWindowMsg": "High chance of rain ({percent}%) expected around {time} for {name}. Consider skipping this session.",
+  "rainPossibleWindowMsg": "Rain may occur around {time} for {name} ({percent}% chance).",
+  "recentRainfallMsg": "Recent rainfall ({amount}mm) was detected near your location. This may reduce the need for upcoming irrigation.",
+  "irrigationFavorableOutlook": "Morning hours appear to have a lower rain probability than evening.",
+  "staleWeatherWarning": "Weather data is outdated. Refresh to get the latest recommendation.",
+  "weatherTestMode": "WEATHER TEST MODE",
+  "demoWeatherBanner": "DEMO WEATHER — NOT REAL FORECAST",
+  "normalWeatherTest": "NORMAL WEATHER",
+  "rainExpectedTest": "RAIN EXPECTED",
+  "exitTestMode": "EXIT TEST MODE"
+}

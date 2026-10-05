@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../bluetooth/bluetooth_service.dart';
+import '../l10n/app_localizations.dart';
 
 class ActivityLogCard extends StatelessWidget {
   const ActivityLogCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final service = BluetoothService();
 
     return ListenableBuilder(
@@ -31,17 +33,17 @@ class ActivityLogCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.history_rounded,
                           color: Color(0xFF2E7D32),
                           size: 24,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
-                          'Activity Log',
-                          style: TextStyle(
+                          l10n?.activityLog ?? 'Activity Log',
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
@@ -50,7 +52,7 @@ class ActivityLogCard extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '${logs.length} events',
+                      l10n?.eventsCount(logs.length) ?? '${logs.length} events',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],

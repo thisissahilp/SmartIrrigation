@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_classic_bluetooth/flutter_classic_bluetooth.dart';
 import '../bluetooth/bluetooth_service.dart';
+import '../l10n/app_localizations.dart';
 import '../screens/bluetooth_devices_screen.dart';
 
 class BluetoothStatusCard extends StatelessWidget {
@@ -9,6 +10,7 @@ class BluetoothStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final service = BluetoothService();
+    final l10n = AppLocalizations.of(context);
 
     return ListenableBuilder(
       listenable: service,
@@ -30,34 +32,28 @@ class BluetoothStatusCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    const Icon(
+                      Icons.bluetooth,
+                      color: Color(0xFF2E7D32),
+                      size: 26,
+                    ),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.bluetooth,
-                            color: Color(0xFF2E7D32),
-                            size: 26,
-                          ),
-                          const SizedBox(width: 8),
-                          const Flexible(
-                            child: Text(
-                              'Bluetooth Connection',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        l10n?.bluetoothConnection ?? 'Bluetooth Connection',
+                        maxLines: 2,
+                        softWrap: true,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _buildStatusPill(service.connectionState),
+                    _buildStatusPill(context, service.connectionState),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -88,8 +84,10 @@ class BluetoothStatusCard extends StatelessWidget {
                 ] else ...[
                   Text(
                     hc05 != null
-                        ? 'Paired module found: ${getDeviceTitle(hc05)} (${hc05.address}). Tap Connect below.'
-                        : 'Ensure HC-05 module is powered and paired on your Android device before connecting.',
+                        ? (l10n?.pairedModuleFound(getDeviceTitle(hc05), hc05.address) ??
+                            'Paired module found: ${getDeviceTitle(hc05)} (${hc05.address}). Tap Connect below.')
+                        : (l10n?.noPairedModuleFound ??
+                            'Ensure HC-05 module is powered and paired on your Android device before connecting.'),
                     style: const TextStyle(
                       fontSize: 13,
                       color: Colors.grey,
@@ -125,10 +123,10 @@ class BluetoothStatusCard extends StatelessWidget {
                                   }
                                 },
                           child: isConnecting
-                              ? const Row(
+                              ? Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(
@@ -136,10 +134,10 @@ class BluetoothStatusCard extends StatelessWidget {
                                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                       ),
                                     ),
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
                                     Text(
-                                      'CONNECTING...',
-                                      style: TextStyle(
+                                      l10n?.connectingButton ?? 'CONNECTING...',
+                                      style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -147,7 +145,9 @@ class BluetoothStatusCard extends StatelessWidget {
                                   ],
                                 )
                               : Text(
-                                  isConnected ? 'DISCONNECT' : 'CONNECT DEVICE',
+                                  isConnected
+                                      ? (l10n?.disconnectDevice ?? 'DISCONNECT')
+                                      : (l10n?.connectDevice ?? 'CONNECT DEVICE'),
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -167,25 +167,26 @@ class BluetoothStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusPill(BtcConnectionState state) {
+  Widget _buildStatusPill(BuildContext context, BtcConnectionState state) {
+    final l10n = AppLocalizations.of(context);
     String text;
     Color color;
     Color textColor;
 
     switch (state) {
       case BtcConnectionState.connected:
-        text = '🟢 Connected';
+        text = '🟢 ${l10n?.connected ?? "Connected"}';
         color = const Color(0xFFE8F5E9);
         textColor = const Color(0xFF2E7D32);
         break;
       case BtcConnectionState.connecting:
-        text = '🟡 Connecting...';
+        text = '🟡 ${l10n?.connecting ?? "Connecting..."}';
         color = const Color(0xFFFFFDE7);
         textColor = const Color(0xFFFBC02D);
         break;
       case BtcConnectionState.disconnected:
       default:
-        text = '🔴 Disconnected';
+        text = '🔴 ${l10n?.disconnected ?? "Disconnected"}';
         color = const Color(0xFFFFEBEE);
         textColor = const Color(0xFFC62828);
         break;

@@ -70,6 +70,18 @@ class BluetoothService extends ChangeNotifier {
   String? _lastCommandStatus;
   String? get lastCommandStatus => _lastCommandStatus;
 
+  DateTime? _lastHeartbeatTime;
+  DateTime? get lastHeartbeatTime => _lastHeartbeatTime;
+
+  String? _lastSentCommand;
+  String? get lastSentCommand => _lastSentCommand;
+
+  bool get isGattReady => _isNativeConnected && _connectionState == BtcConnectionState.connected;
+  bool get isWatchdogActive => _isPumpOn && _heartbeatTimer != null;
+
+  int? get secondsSinceLastHeartbeat =>
+      _lastHeartbeatTime != null ? DateTime.now().difference(_lastHeartbeatTime!).inSeconds : null;
+
   final List<ActivityLogEntry> _activityLogs = [];
   List<ActivityLogEntry> get activityLogs => List.unmodifiable(_activityLogs);
 
@@ -120,6 +132,13 @@ class BluetoothService extends ChangeNotifier {
   /// Initialize listeners and check initial adapter state
   Future<void> init() async {
     if (_initialized) return;
+
+    _nativeBtChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onNativeDisconnected') {
+        print('[BLE CONNECT] Native GATT disconnection callback received');
+        _handleDisconnect(reason: 'Bluetooth/Device connection lost while pump was ON.');
+      }
+    });
 
     _adapterStateSubscription = _bt.adapterState.listen((state) {
       _isBluetoothOn = state == BtcAdapterState.on;
@@ -509,11 +528,68 @@ class BluetoothService extends ChangeNotifier {
     }
   }
 
+  Timer? _heartbeatTimer;
+
+  void startHeartbeat() {
+    stopHeartbeat();
+    print('[BLE HEARTBEAT] Starting periodic 500ms heartbeat ticker');
+    _heartbeatTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+      _sendHeartbeatTick();
+    });
+  }
+
+  void stopHeartbeat() {
+    if (_heartbeatTimer != null) {
+      print('[BLE HEARTBEAT] Stopping periodic heartbeat ticker');
+      _heartbeatTimer?.cancel();
+      _heartbeatTimer = null;
+    }
+  }
+
+  Future<void> _sendHeartbeatTick() async {
+    if (_connectionState != BtcConnectionState.connected || !_isPumpOn) {
+      stopHeartbeat();
+      return;
+    }
+
+    if (_isWriteInProgress) {
+      print('[BLE HEARTBEAT] Skipping tick: write operation currently in progress');
+      return;
+    }
+
+    _isWriteInProgress = true;
+    try {
+      final bool sent = await _nativeBtChannel.invokeMethod('nativeWrite', {'data': 'H'}) ?? false;
+      if (sent) {
+        _lastHeartbeatTime = DateTime.now();
+        _lastSentCommand = 'H';
+      } else {
+        print('[BLE HEARTBEAT] "H" write returned false');
+      }
+    } catch (e) {
+      print('[BLE HEARTBEAT] Heartbeat exception: $e');
+    } finally {
+      _isWriteInProgress = false;
+    }
+  }
+
   /// Send command ("1" for ON, "0" for OFF) via persistent BLE GATT characteristic FFE1
   Future<bool> sendCommand(String command, {String? actionDescription}) async {
-    if (_isWriteInProgress) {
-      print('sendCommand ignored: BLE write already in progress');
-      return false;
+    if (command == '0') {
+      stopHeartbeat();
+    }
+
+    // If a heartbeat write is in progress, wait briefly for it to clear
+    int waitCount = 0;
+    while (_isWriteInProgress && waitCount < 6) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      waitCount++;
+    }
+
+    // For OFF command, force clear the lock if still held by stale write
+    if (command == '0' && _isWriteInProgress) {
+      print('Forcing write lock release for PUMP OFF command');
+      _isWriteInProgress = false;
     }
 
     if (_connectionState != BtcConnectionState.connected) {
@@ -535,10 +611,13 @@ class BluetoothService extends ChangeNotifier {
         throw Exception('Native BLE GATT write failed');
       }
 
+      _lastSentCommand = command;
+
       if (command == '1') {
         _isPumpOn = true;
         _lastCommandStatus = "Pump ON";
         addActivityLog('Pump ON', actionDescription ?? 'Pump turned ON via app');
+        startHeartbeat();
       } else if (command == '0') {
         _isPumpOn = false;
         _lastCommandStatus = "Pump OFF";
@@ -559,6 +638,7 @@ class BluetoothService extends ChangeNotifier {
 
   /// Cleanup BLE GATT connection
   Future<void> disconnect() async {
+    stopHeartbeat();
     try {
       await _dataSubscription?.cancel();
       await _connectionStateSubscription?.cancel();
@@ -576,6 +656,7 @@ class BluetoothService extends ChangeNotifier {
   }
 
   void _handleDisconnect({String? reason}) {
+    stopHeartbeat();
     final wasConnected = _connectionState == BtcConnectionState.connected;
     _connection = null;
     _isNativeConnected = false;

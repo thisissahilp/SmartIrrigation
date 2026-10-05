@@ -685,6 +685,16 @@ class MainActivity : FlutterActivity() {
                     nativeGatt = null
                     nativeWriteChar = null
 
+                    runOnUiThread {
+                        try {
+                            flutterEngine?.dartExecutor?.binaryMessenger?.let { messenger ->
+                                MethodChannel(messenger, CHANNEL).invokeMethod("onNativeDisconnected", mapOf("status" to status))
+                            }
+                        } catch (e: Exception) {
+                            println("[BLE CONNECT] Failed to send onNativeDisconnected: ${e.message}")
+                        }
+                    }
+
                     if (pendingConnectResult != null) {
                         finishNativeConnect(false, "GATT Disconnected with status code: $status")
                     }
@@ -811,10 +821,13 @@ class MainActivity : FlutterActivity() {
             return
         }
 
+        // If a previous write is still pending, override/clear it so user commands are never blocked by heartbeats
         if (pendingWriteResult != null) {
-            println("[BLE WRITE] Rejected: write operation already in progress")
-            result.success(false)
-            return
+            println("[BLE WRITE] Overriding previous pending write for new command: $data")
+            try {
+                pendingWriteResult?.success(false)
+            } catch (_: Exception) {}
+            pendingWriteResult = null
         }
 
         pendingWriteResult = result
@@ -833,7 +846,7 @@ class MainActivity : FlutterActivity() {
         }
 
         if (!initiated) {
-            println("[BLE WRITE] writeCharacteristic returned false or status != SUCCESS")
+            println("[BLE WRITE] writeCharacteristic returned false or status != SUCCESS for: $data")
             pendingWriteResult = null
             result.success(false)
         }
